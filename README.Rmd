@@ -10,7 +10,6 @@ knitr::opts_chunk$set(
   fig.path = "extra/figures/README-",
   error = TRUE
 )
-options(rgl.printRglwidget = FALSE) 
 ```
 # rtini - Right Triangulated Irregular Network Surface Approximation
 
@@ -18,10 +17,8 @@ options(rgl.printRglwidget = FALSE)
 
 A vectorized adaption of [Vladimir Agafonkin's MARTINI][1] implementation of the
 Evans etal. [Right-Triangulated Irregular Networks (RTIN)][2] surface
-approximation algorithm.  This implementation generates meshes that are
-triangulated subsets of maps, subject to error tolerances.  The vertices in the
-reduced mesh are also vertices in the original, and they are arranged to form
-right angle triangles.
+approximation algorithm.  This implementation supports a broader range of
+dimensions and should also be faster in many use cases[^faster].
 
 The workhorse functions are `rtini_error()` and `rtini_mesh()`.  The former
 computes the surface approximation error at all levels of approximation, and
@@ -78,6 +75,10 @@ unlink(c(f.dl, f.uz))
 * Daniel Adler, Duncan Murdoch, etal. for `rgl` with which we made the image in
   this README.
 * R Core for developing and maintaining such a wonderful language.
+
+[^faster]: Error calculation should be generally faster, and mesh extraction
+should be comparable except when the reduced mesh has very large numbers of
+triangles, in which case the JavaScript implementation is faster.
 
 [1]: https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
 [2]: https://www.cs.ubc.ca/~will/papers/rtin.pdf
