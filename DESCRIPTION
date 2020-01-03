@@ -1,0 +1,25 @@
+Package: rtini
+Type: Package
+Title: Right Triangle Irregular Network Surface Approximation
+Description: A vectorized implementation of the Right-Triangulated Irregular
+  Networks (RTIN) surface approximation algorithm.  This implementation
+  generates meshes that are triangulated subsets of maps, subject to error
+  tolerances.  The vertices in the reduced mesh are vertices in the original,
+  and they are arranged to form right angle triangles.
+Version: 0.0.1
+Authors@R: c(
+    person(
+    "Brodie", "Gaslam", email="brodie.gaslam@yahoo.com",
+    role=c("aut", "cre")))
+Depends:
+    R (>= 3.1.0)
+Imports:
+    vetr
+License: GPL (>= 2)
+LazyData: true
+URL: https://github.com/brodieG/rtini
+BugReports: https://github.com/brodieG/rtini/issues
+RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE)
+VignetteBuilder: knitr
+Encoding: UTF-8
