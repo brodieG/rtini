@@ -13,11 +13,12 @@ knitr::opts_chunk$set(
 ```
 # rtini - Right Triangulated Irregular Network Surface Approximation
 
-A vectorized implementation of the Right-Triangulated Irregular Networks
-(RTIN) surface approximation algorithm.  This implementation generates meshes
-that are triangulated subsets of maps, subject to error tolerances.  The
-vertices in the reduced mesh are vertices in the original, and they are
-arranged to form right angle triangles.
+## Overview
+
+A vectorized adaption of [Vladimir Agafonkin's MARTINI][1] implementation of the
+Evans etal. [Right-Triangulated Irregular Networks (RTIN)][2] surface
+approximation algorithm.  This implementation supports a broader range of
+dimensions and should also be faster in many use cases[^faster].
 
 The workhorse functions are `rtini_error()` and `rtini_mesh()`.  The former
 computes the surface approximation error at all levels of approximation, and
@@ -28,33 +29,56 @@ use.  It is unlikely this package will ever be posted on CRAN, but if you are
 interested in the functionality and know of a GPL licensed home for it do let me
 know.
 
-
-```{r fig.width=6, fig.height=2}
+```{r eval=FALSE}
 library(rtini)
-err <- rtini_error(volcano[1:65,1:33])
-par(mfrow=c(1, 3), mai=rep(0.1, 4))
-mesh <- rtini_extract(err, 2)
-tris <- rbind(do.call(cbind, mesh), NA)
-plot.new()
-polygon(
-  x=((tris - 1) %/% nrow(err)) / (ncol(err) - 1),
-  y=((tris - 1) %% nrow(err)) / (nrow(err) - 1),
-  col='grey90'
-)
-mesh <- rtini_extract(err, 10)
-tris <- rbind(do.call(cbind, mesh), NA)
-plot.new()
-polygon(
-  x=((tris - 1) %/% nrow(err)) / (ncol(err) - 1),
-  y=((tris - 1) %% nrow(err)) / (nrow(err) - 1),
-  col='grey90'
-)
-mesh <- rtini_extract(err, 30)
-tris <- rbind(do.call(cbind, mesh), NA)
-plot.new()
-polygon(
-  x=((tris - 1) %/% nrow(err)) / (ncol(err) - 1),
-  y=((tris - 1) %% nrow(err)) / (nrow(err) - 1),
-  col='grey90'
-)
+
+err <- rtini_error(volcano)
+
+library(rgl)
+par3d(windowRect=c(100,100,800,400))
+mfrow3d(nr=1, nc=3, sharedMouse=TRUE)
+for(tol in c(2, 10, 30)){
+  next3d()
+  ids <- rtini_extract(err, tol)
+  xyz <- id_to_coord(ids, volcano)
+  triangles3d(xyz, color='grey50')
+}
 ```
+![](extra/figures/README-rgl-shot.png)
+
+This implementation works for any elevation map with odd number of rows and
+columns, but works best when the dimensions are (2^k + 1, n * 2^k + 1) as
+otherwise many tiles must be split just to get them to conform with each other,
+as can be seen here with `volcano` along the bottom and right edges.
+
+## Installation
+
+This package is only available on github.  Use your favorite package installer
+or:
+
+```{r eval=FALSE}
+f.dl <- tempfile()
+f.uz <- tempfile()
+github.url <- 'https://github.com/brodieG/rtini/archive/master.zip'
+download.file(github.url, f.dl)
+unzip(f.dl, exdir=f.uz)
+install.packages(file.path(f.uz, 'rtini-master'), repos=NULL, type='source')
+unlink(c(f.dl, f.uz))
+```
+
+## Acknowledgments
+
+* Vladimir Agafonkin for the implementation of and [wonderful post][1] on the
+  topic.
+* William Evans, David Kirkpatrick, and Gregg Townsend for the [original
+  paper][2].
+* Daniel Adler, Duncan Murdoch, etal. for `rgl` with which we made the image in
+  this README.
+* R Core for developing and maintaining such a wonderful language.
+
+[^faster]: Error calculation should be generally faster, and mesh extraction
+should be comparable except when the reduced mesh has very large numbers of
+triangles, in which case the JavaScript implementation is faster.
+
+[1]: https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
+[2]: https://www.cs.ubc.ca/~will/papers/rtin.pdf
