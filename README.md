@@ -44,10 +44,10 @@ licensed home for it do let me know.
 ![](extra/figures/README-rgl-shot.png)
 
 This implementation works for any elevation map with odd number of rows
-and columns, but works best when the dimensions are (2^k + 1, n \* 2^k +
-1) as otherwise many tiles must be split just to get them to conform
-with each other, as can be seen here with `volcano` along the bottom and
-right edges.
+and columns, but works best when the dimensions are
+`(2^k + 1, n * 2^k + 1)` as otherwise many tiles must be split just to
+get them to conform with each other, as can be seen here with `volcano`
+along the bottom and right edges.
 
 Installation
 ------------
