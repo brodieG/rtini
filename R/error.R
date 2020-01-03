@@ -1,7 +1,7 @@
 #' Compute RTIN Surface Approximation Error on a Height Map
 #'
 #' A vectorized adaptation of \href{https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh}{Vladimir Agafonkin's MARTINI implementation}
-#' of the \href{https://www.cs.ubc.ca/~will/papers/rtin.pdf}{Right Triangulated Irregular Networks} surface approximation
+#' of the Evans etal. \href{https://www.cs.ubc.ca/~will/papers/rtin.pdf}{Right Triangulated Irregular Networks} surface approximation
 #' algorithm.  Accepts a broader set of input matrix dimensions than MARTINI.
 #'
 #' @param map numeric matrix with at least three rows and three columns, and
