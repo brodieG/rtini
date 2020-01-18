@@ -6,7 +6,7 @@ Description: A vectorized implementation of the Right-Triangulated Irregular
   generates meshes that are triangulated subsets of maps, subject to error
   tolerances.  The vertices in the reduced mesh are also vertices in the
   original, and they are arranged to form right angle triangles.
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person(
     "Brodie", "Gaslam", email="brodie.gaslam@yahoo.com",

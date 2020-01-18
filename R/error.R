@@ -24,6 +24,10 @@
 #' @param map numeric matrix with at least three rows and three columns, and
 #'   with an odd number of each.  It is expected that the input is finite and
 #'   does not contain NAs.
+#' @param carry.child TRUE (default) FALSE  whether the child errors should be
+#'   carried over to the parent.  Setting to FALSE will cause mesh extraction to
+#'   work incorrectly, but may be useful if you're interested in the actual
+#'   errors at each point.
 #' @return numeric matrix of the same dimension as `map` with the
 #'   maximum of the rtin approximation error at each point and the equivalent
 #'   approximation at the child points.
@@ -33,8 +37,8 @@
 #' err <- rtini_error(volcano)
 #' rtin_extract(err, tol=10)
 
-rtini_error <- function(map) {
-  vetr(matrix(numeric(), 0, 0) && dim(.) > 2 && dim(.) %% 2 > 0)
+rtini_error <- function(map, carry.child=TRUE) {
+  vetr(matrix(numeric(), 0, 0) && dim(.) > 2 && dim(.) %% 2 > 0, LGL.1)
 
   # - Helper Funs --------------------------------------------------------------
   .get_child_err <- function(ids.mid, which, type) {
@@ -61,17 +65,18 @@ rtini_error <- function(map) {
   # tiles to make sure the larger ones are broken up.  What's here currently is
   # too aggressive
 
-  if((r.extra <- (nr - 1L) %% 2L^layers)) {
-    while(r.extra - 2^(floor(log2(r.extra))))
-      r.extra <- r.extra - 2^(floor(log2(r.extra)))
-    errors[nr - r.extra, seq(r.extra + 1L, nc - 1L, by=r.extra)] <- Inf
+  if(carry.child) {
+    if((r.extra <- (nr - 1L) %% 2L^layers)) {
+      while(r.extra - 2^(floor(log2(r.extra))))
+        r.extra <- r.extra - 2^(floor(log2(r.extra)))
+      errors[nr - r.extra, seq(r.extra + 1L, nc - 1L, by=r.extra)] <- Inf
+    }
+    if((c.extra <- (nc - 1L) %% 2L^layers)) {
+      while(c.extra - 2^(floor(log2(c.extra))))
+        c.extra <- c.extra - 2^(floor(log2(c.extra)))
+      errors[seq(c.extra + 1L, nr - 1L, by=c.extra), nc - c.extra] <- Inf
+    }
   }
-  if((c.extra <- (nc - 1L) %% 2L^layers)) {
-    while(c.extra - 2^(floor(log2(c.extra))))
-      c.extra <- c.extra - 2^(floor(log2(c.extra)))
-    errors[seq(c.extra + 1L, nr - 1L, by=c.extra), nc - c.extra] <- Inf
-  }
-
   for(i in seq_len(layers)) {
     mult <- as.integer(2^i)
     mhalf <- mult %/% 2L
@@ -105,7 +110,7 @@ rtini_error <- function(map) {
       h.out.b=if(h.ex) ids.h[h.len] + (seq_len(col.hn) - 1L) * nr * mult
     )
     # Errors
-    err.child <- if(i > 1L) {
+    err.child <- if(i > 1L && carry.child) {
       which <- list(2:3, 1:4, c(1L,4L), 3:4, 1:4, 1:2)
       Map(.get_child_err, ids, which, 'axis')
     }
@@ -124,7 +129,7 @@ rtini_error <- function(map) {
     which.sw <- xor((col(ids.raw) %% 2L), (row(ids.raw) %% 2L))
     ids <- list(nw=ids.raw[!which.sw], sw=ids.raw[which.sw])
 
-    err.child <- Map(.get_child_err, ids, list(1:4), 'diag')
+    err.child <- if(carry.child) Map(.get_child_err, ids, list(1:4), 'diag')
     err.par <- Map(
       .get_par_err, ids,
       list((mhalf * nr + mhalf) * c(1L, -1L), (mhalf * nr - mhalf) * c(1L, -1L))
